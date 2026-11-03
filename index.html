@@ -180,8 +180,8 @@ function build(rows){
     const ty=g(r,'payment type').toLowerCase(),k=/reg/.test(ty)?'reg':/don/.test(ty)?'don':'mem';
     const a1=num(g(r,'payment amount')),a2=num(g(r,'payment amount 2'));
     return{ts:pDate(g(r,'timestamp')),no:String(parseInt(g(r,'membership no.'))||g(r,'membership no.')),name:g(r,'full name'),phone:g(r,'phone number'),k,
-      amt:(k=='mem'?(a2??a1):(a1??a2))||0,month:g(r,'payment month'),mk:k=='mem'?pMonths(g(r,'payment month')):[],
-      rec:g(r,'upload receipt')||g(r,'upload receipt 2')}});
+      amt:(k=='mem'?a2:a1)||0, /* Membership -> column I (Payment Amount 2); Registration & Donation -> column F (Payment Amount) */month:g(r,'payment month'),mk:k=='mem'?pMonths(g(r,'payment month')):[],
+      rec:k=='mem'?(g(r,'upload receipt 2')||g(r,'upload receipt')):(g(r,'upload receipt')||g(r,'upload receipt 2'))}});
 }
 function demoData(){const d=(m,dd)=>new Date(2026,m-1,dd);return[
  {ts:d(8,16),no:'109',name:'Demo Member A',phone:'0771234567',k:'reg',amt:1000,month:'',mk:[],rec:''},
