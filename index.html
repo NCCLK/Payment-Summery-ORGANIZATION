@@ -139,7 +139,10 @@ const CFG={
   // hash of "ID:PASSWORD". Default login -> ID: admin  Password: Change@2026
   // To make your own: open this page, press F12 > Console, run  makeHash('myid','mypassword')  and paste the result below.
   ADMIN_HASH:'1mwblwmu4ss',
-  REFRESH_MIN:5
+  REFRESH_MIN:5,
+  // OPTIONAL (recommended if amounts look wrong): Google Sheet > File > Share > Publish to web > choose the right tab + "CSV" > Publish,
+  // then paste the link here. This gives the exact cell values with no data-type guessing.
+  PUB_CSV:''
 };
 /* ========================================================= */
 const MONTHS=[[2026,7],[2026,8],[2026,9],[2026,10],[2026,11],[2026,12]];
@@ -179,7 +182,8 @@ function build(rows){
   const all=re=>H.map((x,i)=>re.test(x)?i:-1).filter(i=>i>=0);
   /* Duplicate headers are handled by position: 1st "Payment Amount" = column F (Registration/Donation),
      2nd = column I (Membership). Same for the two "Upload Receipt" columns (G and K). */
-  const AM=all(/^payment amount/),RC=all(/^upload receipt/);
+  const AM=/^payment amount/.test(H[5]||'')&&/^payment amount/.test(H[8]||'')?[5,8]:all(/^payment amount/),RC=/^upload receipt/.test(H[6]||'')&&/^upload receipt/.test(H[10]||'')?[6,10]:all(/^upload receipt/);
+  window.__cols={H,AM,RC};
   const cell=(r,i)=>i==null||i<0?'':(r[i]||'').trim();
   const g=(r,n)=>cell(r,ix(n));
   return rows.slice(1).filter(r=>g(r,'membership no.')).map(r=>{
@@ -197,12 +201,21 @@ function demoData(){const d=(m,dd)=>new Date(2026,m-1,dd);return[
  {ts:d(10,30),no:'88',name:'Demo Member C',phone:'0705550000',k:'reg',amt:1000,month:'',mk:[],rec:''}]}
 function index(){MEM=new Map();DATA.sort((a,b)=>(b.ts||0)-(a.ts||0));DATA.forEach(r=>{let m=MEM.get(r.no);if(!m){m={no:r.no,name:r.name,phones:new Set(),rows:[]};MEM.set(r.no,m)}if(r.phone)m.phones.add(normPhone(r.phone));m.phone=m.phone||r.phone;if(r.name.length>m.name.length)m.name=r.name;m.rows.push(r)})}
 async function load(){
+  let diag='';
   try{
-    const u=`https://docs.google.com/spreadsheets/d/${CFG.SHEET_ID}/gviz/tq?tqx=out:csv&gid=${CFG.GID}`;
-    const res=await fetch(u);if(!res.ok)throw 0;
-    DATA=build(parseCSV(await res.text()));if(!DATA.length)throw 0;demo=false;
+    const u=CFG.PUB_CSV||`https://docs.google.com/spreadsheets/d/${CFG.SHEET_ID}/gviz/tq?tqx=out:csv&gid=${CFG.GID}&_=${Date.now()}`;
+    const res=await fetch(u,{cache:'no-store'});if(!res.ok)throw 0;
+    const rows=parseCSV(await res.text());
+    DATA=build(rows);if(!DATA.length)throw 0;demo=false;
+    const mem=DATA.filter(r=>r.k=='mem');
+    if(mem.length&&!mem.some(r=>r.amt>0)){
+      const c=window.__cols;
+      diag='Membership amounts read as 0. Columns found: '+c.H.map((x,i)=>String.fromCharCode(65+i)+'='+x).join(' | ')+' | Amount columns used: '+c.AM.map(i=>String.fromCharCode(65+i)).join(',')+' | Sample row: '+JSON.stringify(rows[1]||[]).slice(0,300)
+        +' — Tip: set PUB_CSV in the settings (see comment).';
+      console.warn(diag);
+    }
   }catch(e){DATA=demoData();demo=true}
-  index();$('#notice').hidden=!demo;$('#notice').textContent=t('loadFail');
+  index();$('#notice').hidden=!(demo||diag);$('#notice').textContent=demo?t('loadFail'):diag;
   if(admin)renderAdmin();
 }
 
@@ -283,7 +296,7 @@ $('#logout').onclick=()=>setAdmin(false);$('#toSearch').onclick=()=>{$('#viewAdm
 function toast(m){const e=$('#toast');e.textContent=m;e.classList.add('on');setTimeout(()=>e.classList.remove('on'),1800)}
 function applyLang(l){lang=l;document.documentElement.lang=l=='si'?'si':'en';$('#bEN').classList.toggle('on',l=='en');$('#bSI').classList.toggle('on',l=='si');
   document.querySelectorAll('[data-t]').forEach(e=>e.textContent=t(e.dataset.t));document.querySelectorAll('[data-ph]').forEach(e=>e.placeholder=t(e.dataset.ph));
-  $('#notice').textContent=t('loadFail');document.title=t('brand');opts();doSearch();if(admin)renderAdmin();try{localStorage.setItem('lang',l)}catch(_){}}
+  if(demo)$('#notice').textContent=t('loadFail');document.title=t('brand');opts();doSearch();if(admin)renderAdmin();try{localStorage.setItem('lang',l)}catch(_){}}
 $('#bEN').onclick=()=>applyLang('en');$('#bSI').onclick=()=>applyLang('si');
 $('#go').onclick=doSearch;['q','q2'].forEach(i=>$('#'+i).addEventListener('keydown',e=>e.key=='Enter'&&doSearch()));
 (async()=>{let l='en';try{l=localStorage.getItem('lang')||'en'}catch(_){}
