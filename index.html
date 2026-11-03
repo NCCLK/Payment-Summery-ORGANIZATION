@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Member Payment Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--brand:#0E6B5C;--brand2:#0A4F44;--ink:#14201E;--mute:#5E6F6C;--bg:#F2F6F5;--card:#fff;--line:#DCE5E3;--reg:#0E6B5C;--mem:#2F5FA7;--don:#C77A12;--ok:#1B8A5A;--bad:#B3402F}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Plus Jakarta Sans','Noto Sans Sinhala',system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+button,input,select{font:inherit;color:inherit}
+header{background:var(--brand2);color:#fff;position:sticky;top:0;z-index:5}
+.bar{max-width:1200px;margin:auto;padding:12px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.logo{font-weight:700;font-size:18px;flex:1;min-width:180px}
+.seg{display:inline-flex;background:rgba(255,255,255,.14);border-radius:8px;padding:3px}
+.seg button{border:0;background:none;color:#fff;padding:5px 12px;border-radius:6px;cursor:pointer;font-weight:600}
+.seg button.on{background:#fff;color:var(--brand2)}
+.btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 14px;cursor:pointer;font-weight:600}
+.btn:hover{border-color:var(--brand)}
+.btn.pri{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.pri:hover{background:var(--brand2)}
+.btn.ghost{background:rgba(255,255,255,.14);border-color:transparent;color:#fff}
+:focus-visible{outline:3px solid #7CC8B8;outline-offset:2px}
+main{max-width:1200px;margin:auto;padding:24px 20px 60px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px}
+h1{font-size:26px;margin:0 0 4px}h2{font-size:18px;margin:0 0 12px}
+.sub{color:var(--mute);margin:0 0 16px}
+.search{display:flex;gap:10px;flex-wrap:wrap}
+.search input{flex:1;min-width:200px;padding:13px 14px;border:1.5px solid var(--line);border-radius:10px;font-size:17px}
+.search input:focus{border-color:var(--brand);outline:none}
+.hint{font-size:13px;color:var(--mute);margin-top:8px}
+.notice{background:#FFF6E0;border:1px solid #EBCB7A;color:#6B4B00;padding:10px 14px;border-radius:10px;margin-bottom:16px;font-size:14px}
+.res{margin-top:20px;display:grid;gap:16px}
+.mh{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.av{width:52px;height:52px;border-radius:50%;background:var(--brand);color:#fff;display:grid;place-items:center;font-weight:700;font-size:19px}
+.mh .nm{font-size:20px;font-weight:700}.mh .mt{color:var(--mute);font-size:14px}
+.mh .acts{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+.tile{border:1px solid var(--line);border-left:5px solid var(--c);border-radius:10px;padding:12px 14px}
+.tile small{color:var(--mute);display:block}.tile b{font-size:21px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.chip{padding:5px 12px;border-radius:20px;font-size:13px;font-weight:600;background:#EEF2F1;color:var(--mute)}
+.chip.p{background:#DDF3E8;color:var(--ok)}
+.lbl{font-size:13px;font-weight:600;color:var(--mute);margin:0 0 6px}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:12.5px;color:var(--mute);font-weight:600;background:#F8FAF9;position:sticky;top:0}
+td.n,th.n{text-align:right}
+.tag{display:inline-block;padding:2px 9px;border-radius:12px;font-size:12px;font-weight:600;color:#fff;background:var(--c)}
+a{color:var(--mem)}
+.empty{text-align:center;color:var(--mute);padding:28px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.kpi small{color:var(--mute)}.kpi b{display:block;font-size:24px}
+.flt{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:end}
+.flt label{font-size:12.5px;font-weight:600;color:var(--mute);display:grid;gap:3px}
+.flt input,.flt select{padding:8px 10px;border:1.5px solid var(--line);border-radius:8px;background:#fff}
+.grid2{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:800px){.grid2{grid-template-columns:1fr}}
+.ch{position:relative;height:290px}
+.scroll{max-height:460px;overflow:auto;border:1px solid var(--line);border-radius:10px}
+dialog{border:0;border-radius:14px;padding:24px;width:min(380px,92vw);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+dialog::backdrop{background:rgba(10,30,28,.55)}
+dialog input{width:100%;padding:11px;border:1.5px solid var(--line);border-radius:8px;margin:4px 0 12px}
+.err{color:var(--bad);font-size:13px;min-height:18px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:10px;opacity:0;pointer-events:none;transition:.2s}
+.toast.on{opacity:1}
+[hidden]{display:none!important}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header><div class="bar">
+  <div class="logo" data-t="brand"></div>
+  <div class="seg" role="group" aria-label="Language"><button id="bEN" class="on">English</button><button id="bSI">සිංහල</button></div>
+  <button class="btn ghost" id="adminBtn" data-t="adminLogin"></button>
+</div></header>
+
+<main>
+<div id="notice" class="notice" hidden></div>
+
+<section id="viewSearch">
+  <div class="card">
+    <h1 data-t="title"></h1>
+    <p class="sub" data-t="sub"></p>
+    <div class="search">
+      <input id="q" inputmode="numeric" autocomplete="off" data-ph="ph"><input id="q2" inputmode="tel" autocomplete="off" data-ph="ph2">
+      <button class="btn pri" id="go" data-t="search"></button>
+    </div>
+    <div class="hint" data-t="hint"></div>
+  </div>
+  <div id="res" class="res"></div>
+</section>
+
+<section id="viewAdmin" hidden>
+  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px">
+    <h1 style="flex:1;margin:0" data-t="dash"></h1>
+    <button class="btn" id="refresh" data-t="refresh"></button>
+    <button class="btn" id="csvBtn" data-t="export"></button>
+    <button class="btn" id="toSearch" data-t="memberView"></button>
+    <button class="btn" id="logout" data-t="logout"></button>
+  </div>
+  <div class="kpis" id="kpis"></div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="flt">
+      <label><span data-t="type"></span><select id="fType"></select></label>
+      <label><span data-t="month"></span><select id="fMonth"></select></label>
+      <label><span data-t="from"></span><input type="date" id="fFrom"></label>
+      <label><span data-t="to"></span><input type="date" id="fTo"></label>
+      <label style="flex:1;min-width:180px"><span data-t="find"></span><input id="fText" data-ph="findPh"></label>
+      <button class="btn" id="fReset" data-t="reset"></button>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card"><h2 data-t="byMonth"></h2><div class="ch"><canvas id="c1"></canvas></div></div>
+    <div class="card"><h2 data-t="byType"></h2><div class="ch"><canvas id="c2"></canvas></div></div>
+  </div>
+  <div class="card"><h2 id="tblTitle"></h2><div class="scroll tw" id="adminTbl"></div></div>
+</section>
+</main>
+
+<dialog id="dlg">
+  <h2 data-t="adminLogin"></h2>
+  <label class="lbl" for="uid" data-t="uid"></label><input id="uid" autocomplete="username">
+  <label class="lbl" for="pw" data-t="pw"></label><input id="pw" type="password" autocomplete="current-password">
+  <div class="err" id="err"></div>
+  <div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn" id="cancel" data-t="cancel"></button><button class="btn pri" id="signin" data-t="signin"></button></div>
+</dialog>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= SETTINGS – edit these ================= */
+const CFG={
+  SHEET_ID:'1T-a9eRNmF1QUQ0SPsvFkiRAhNg2IrqWwhpq58-dUZQs',
+  GID:'546866089',
+  // hash of "ID:PASSWORD". Default login -> ID: admin  Password: Change@2026
+  // To make your own: open this page, press F12 > Console, run  makeHash('myid','mypassword')  and paste the result below.
+  ADMIN_HASH:'1mwblwmu4ss',
+  REFRESH_MIN:5
+};
+/* ========================================================= */
+const MONTHS=[[2026,7],[2026,8],[2026,9],[2026,10],[2026,11],[2026,12]];
+const MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MS={en:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],si:['ජන','පෙබ','මාර්','අප්‍රේ','මැයි','ජුනි','ජූලි','අගෝ','සැප්','ඔක්','නොවැ','දෙසැ']};
+const TY={reg:'#0E6B5C',mem:'#2F5FA7',don:'#C77A12'};
+const T={
+en:{brand:'Member Payment Portal',adminLogin:'Admin login',title:'Check your payments',sub:'Enter your membership number and the phone number registered with it to see your registration, membership and donation payments.',search:'Search',hint:'Phone formats accepted: 0777224794 · 777224794 · +94777224794',ph:'Membership no.',ph2:'Phone number',both:'Enter both your membership number and phone number.',
+reg:'Registration',mem:'Membership',don:'Donation',total:'Total paid',paidMonths:'Membership months',payments:'Payment history',date:'Date',type:'Type',month:'Month',amount:'Amount',receipt:'Receipt',view:'View',
+share:'Share',copy:'Copy',copied:'Copied to clipboard',none:'No match. The membership number and phone number must belong to the same member.',memNo:'Membership No.',phone:'Phone',noPay:'No payments yet',
+uid:'ID',pw:'Password',signin:'Sign in',cancel:'Cancel',bad:'Incorrect ID or password',logout:'Sign out',dash:'Admin dashboard',refresh:'Refresh data',export:'Export CSV',memberView:'Member search',
+from:'From',to:'To',find:'Find (name, no., phone)',reset:'Reset',all:'All',byMonth:'Collection by month',byType:'Total by payment type',members:'Members',collected:'Total collected',payCount:'Payments',
+shown:'payments shown',loadFail:'Could not load the Google Sheet, showing demo data. Make the sheet viewable by "Anyone with the link".',loaded:'Data updated',more:'Showing first 300 rows. Use filters to narrow down.',name:'Name',unpaid:'Not paid'},
+si:{brand:'සාමාජික ගෙවීම් පද්ධතිය',adminLogin:'පරිපාලක පිවිසුම',title:'ඔබේ ගෙවීම් බලන්න',sub:'සාමාජික අංකය සහ ඒ සමඟ ලියාපදිංචි දුරකථන අංකය යන දෙකම ඇතුළත් කර ඔබේ ලියාපදිංචි, සාමාජික සහ පරිත්‍යාග ගෙවීම් බලන්න.',search:'සොයන්න',hint:'පිළිගත් දුරකථන ආකාර: 0777224794 · 777224794 · +94777224794',ph:'සාමාජික අංකය',ph2:'දුරකථන අංකය',both:'සාමාජික අංකය සහ දුරකථන අංකය යන දෙකම ඇතුළත් කරන්න.',
+reg:'ලියාපදිංචි ගාස්තුව',mem:'සාමාජික ගාස්තුව',don:'පරිත්‍යාග',total:'මුළු ගෙවීම්',paidMonths:'සාමාජික ගාස්තු මාස',payments:'ගෙවීම් ඉතිහාසය',date:'දිනය',type:'වර්ගය',month:'මාසය',amount:'මුදල',receipt:'රිසිට්පත',view:'බලන්න',
+share:'බෙදාගන්න',copy:'පිටපත් කරන්න',copied:'පිටපත් කරන ලදී',none:'ගැළපීමක් නැත. සාමාජික අංකය සහ දුරකථන අංකය එකම සාමාජිකයාට අයත් විය යුතුය.',memNo:'සාමාජික අංකය',phone:'දුරකථනය',noPay:'තවම ගෙවීම් නැත',
+uid:'හැඳුනුම',pw:'මුරපදය',signin:'පිවිසෙන්න',cancel:'අවලංගු',bad:'හැඳුනුම හෝ මුරපදය වැරදියි',logout:'පිටවන්න',dash:'පරිපාලක උපකරණ පුවරුව',refresh:'දත්ත නැවුම් කරන්න',export:'CSV බාගන්න',memberView:'සාමාජික සෙවුම',
+from:'සිට',to:'දක්වා',find:'සොයන්න (නම, අංකය, දුරකථනය)',reset:'යළි සකසන්න',all:'සියල්ල',byMonth:'මාසය අනුව එකතුව',byType:'ගෙවීම් වර්ග අනුව එකතුව',members:'සාමාජිකයන්',collected:'මුළු එකතුව',payCount:'ගෙවීම්',
+shown:'ගෙවීම් පෙන්වයි',loadFail:'Google Sheet එක පූරණය කළ නොහැකි විය; ආදර්ශ දත්ත පෙන්වයි. Sheet එක "Anyone with the link" ලෙස සකසන්න.',loaded:'දත්ත යාවත්කාලීන විය',more:'පළමු පේළි 300 පමණක් පෙන්වයි. පෙරහන් භාවිතා කරන්න.',name:'නම',unpaid:'ගෙවා නැත'}
+};
+let lang='en',DATA=[],MEM=new Map(),admin=false,demo=false,charts={};
+const $=s=>document.querySelector(s),t=k=>T[lang][k]||k;
+const rs=n=>'Rs '+Math.round(n||0).toLocaleString('en-LK');
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const cyrb53=(s,seed=0)=>{let h1=0xdeadbeef^seed,h2=0x41c6ce57^seed;for(let i=0,c;i<s.length;i++){c=s.charCodeAt(i);h1=Math.imul(h1^c,2654435761);h2=Math.imul(h2^c,1597334677)}h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);return(4294967296*(2097151&h2)+(h1>>>0)).toString(36)};
+window.makeHash=(id,pw)=>cyrb53(id+':'+pw);
+
+/* ---------- data loading ---------- */
+function parseCSV(s){const r=[];let row=[],c='',q=false;for(let i=0;i<s.length;i++){const ch=s[i];if(q){if(ch=='"'){if(s[i+1]=='"'){c+='"';i++}else q=false}else c+=ch}else if(ch=='"')q=true;else if(ch==','){row.push(c);c=''}else if(ch=='\n'){row.push(c);r.push(row);row=[];c=''}else if(ch!='\r')c+=ch}if(c||row.length){row.push(c);r.push(row)}return r}
+const normPhone=s=>{let d=String(s||'').replace(/\D/g,'');if(d.startsWith('94')&&d.length>=11)d=d.slice(2);if(d.startsWith('0'))d=d.slice(1);return d};
+const num=v=>{const n=parseFloat(String(v??'').replace(/[^\d.]/g,''));return isNaN(n)?null:n};
+function pDate(s){const m=String(s).match(/(\d+)\/(\d+)\/(\d{4})(?:\s+(\d+):(\d+))?/);if(m)return new Date(+m[3],+m[1]-1,+m[2],+(m[4]||0),+(m[5]||0));const d=new Date(s);return isNaN(d)?null:d}
+function pMonths(s){const out=[],x=String(s||'').toLowerCase(),y=(x.match(/20\d\d/)||[2026])[0];MN.forEach((m,i)=>{if(x.includes(m.toLowerCase()))out.push(+y+'-'+(i+1))});return out}
+function build(rows){
+  const H=rows[0].map(h=>h.trim().toLowerCase()),ix=n=>H.indexOf(n);
+  const g=(r,n)=>{const i=ix(n);return i<0?'':(r[i]||'').trim()};
+  return rows.slice(1).filter(r=>g(r,'membership no.')).map(r=>{
+    const ty=g(r,'payment type').toLowerCase(),k=/reg/.test(ty)?'reg':/don/.test(ty)?'don':'mem';
+    const a1=num(g(r,'payment amount')),a2=num(g(r,'payment amount 2'));
+    return{ts:pDate(g(r,'timestamp')),no:String(parseInt(g(r,'membership no.'))||g(r,'membership no.')),name:g(r,'full name'),phone:g(r,'phone number'),k,
+      amt:(k=='mem'?(a2??a1):(a1??a2))||0,month:g(r,'payment month'),mk:k=='mem'?pMonths(g(r,'payment month')):[],
+      rec:g(r,'upload receipt')||g(r,'upload receipt 2')}});
+}
+function demoData(){const d=(m,dd)=>new Date(2026,m-1,dd);return[
+ {ts:d(8,16),no:'109',name:'Demo Member A',phone:'0771234567',k:'reg',amt:1000,month:'',mk:[],rec:''},
+ {ts:d(9,5),no:'109',name:'Demo Member A',phone:'0771234567',k:'mem',amt:2000,month:'July and August',mk:['2026-7','2026-8'],rec:''},
+ {ts:d(10,2),no:'109',name:'Demo Member A',phone:'0771234567',k:'don',amt:5000,month:'',mk:[],rec:''},
+ {ts:d(9,12),no:'171',name:'Demo Member B',phone:'0719876543',k:'mem',amt:1000,month:'September 2026',mk:['2026-9'],rec:''},
+ {ts:d(10,30),no:'88',name:'Demo Member C',phone:'0705550000',k:'reg',amt:1000,month:'',mk:[],rec:''}]}
+function index(){MEM=new Map();DATA.sort((a,b)=>(b.ts||0)-(a.ts||0));DATA.forEach(r=>{let m=MEM.get(r.no);if(!m){m={no:r.no,name:r.name,phones:new Set(),rows:[]};MEM.set(r.no,m)}if(r.phone)m.phones.add(normPhone(r.phone));m.phone=m.phone||r.phone;if(r.name.length>m.name.length)m.name=r.name;m.rows.push(r)})}
+async function load(){
+  try{
+    const u=`https://docs.google.com/spreadsheets/d/${CFG.SHEET_ID}/gviz/tq?tqx=out:csv&gid=${CFG.GID}`;
+    const res=await fetch(u);if(!res.ok)throw 0;
+    DATA=build(parseCSV(await res.text()));if(!DATA.length)throw 0;demo=false;
+  }catch(e){DATA=demoData();demo=true}
+  index();$('#notice').hidden=!demo;$('#notice').textContent=t('loadFail');
+  if(admin)renderAdmin();
+}
+
+/* ---------- member search ---------- */
+function find(no,ph){
+  const n=String(parseInt(String(no).replace(/\D/g,''))),p=normPhone(ph);
+  const m=MEM.get(n);return m&&p.length==9&&m.phones.has(p)?[m]:[];
+}
+const maskPh=p=>admin?p:String(p).replace(/^(\d{3})\d+(\d{3})$/,'$1 ••• $2');
+const fd=d=>d?d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'';
+function sums(rows){const s={reg:0,mem:0,don:0,nreg:0,nmem:0,ndon:0};rows.forEach(r=>{s[r.k]+=r.amt;s['n'+r.k]++});s.all=s.reg+s.mem+s.don;return s}
+function shareText(m){
+  const s=sums(m.rows),paid=new Set(m.rows.flatMap(r=>r.mk)),pm=MONTHS.filter(x=>paid.has(x.join('-'))).map(x=>MS[lang][x[1]-1]).join(', ');
+  return `${t('brand')}\n${t('memNo')}: ${m.no}\n${t('name')}: ${m.name}\n${t('reg')}: ${rs(s.reg)}\n${t('mem')}: ${rs(s.mem)}${pm?' ('+pm+')':''}\n${t('don')}: ${rs(s.don)}\n${t('total')}: ${rs(s.all)}`}
+function card(m){
+  const s=sums(m.rows),paid=new Set(m.rows.flatMap(r=>r.mk));
+  const tiles=[['reg',s.reg,s.nreg],['mem',s.mem,s.nmem],['don',s.don,s.ndon]].map(([k,v,n])=>`<div class="tile" style="--c:${TY[k]}"><small>${t(k)} · ${n}×</small><b>${rs(v)}</b></div>`).join('')+`<div class="tile" style="--c:#14201E"><small>${t('total')}</small><b>${rs(s.all)}</b></div>`;
+  const chips=MONTHS.map(x=>`<span class="chip ${paid.has(x.join('-'))?'p':''}">${paid.has(x.join('-'))?'✓ ':''}${MS[lang][x[1]-1]} ${x[0]}</span>`).join('');
+  const rows=m.rows.map(r=>`<tr><td>${fd(r.ts)}</td><td><span class="tag" style="--c:${TY[r.k]}">${t(r.k)}</span></td><td>${esc(r.month)||'–'}</td><td class="n">${rs(r.amt)}</td><td>${r.rec?`<a href="${esc(r.rec)}" target="_blank" rel="noopener">${t('view')}</a>`:'–'}</td></tr>`).join('');
+  return`<div class="card" data-no="${esc(m.no)}"><div class="mh"><div class="av">${esc((m.name||'?').trim()[0]||'?').toUpperCase()}</div><div><div class="nm">${esc(m.name)}</div><div class="mt">${t('memNo')} ${esc(m.no)} · ${t('phone')} ${esc(maskPh(m.phone))}</div></div>
+  <div class="acts"><button class="btn pri" data-a="share">${t('share')}</button><button class="btn" data-a="copy">${t('copy')}</button><button class="btn" data-a="wa">WhatsApp</button></div></div>
+  <div class="tiles">${tiles}</div><p class="lbl">${t('paidMonths')}</p><div class="chips">${chips}</div>
+  <p class="lbl">${t('payments')}</p><div class="tw"><table><thead><tr><th>${t('date')}</th><th>${t('type')}</th><th>${t('month')}</th><th class="n">${t('amount')}</th><th>${t('receipt')}</th></tr></thead><tbody>${rows}</tbody></table></div></div>`}
+function doSearch(){const a=$('#q').value.trim(),b=$('#q2').value.trim();if(!a&&!b){$('#res').innerHTML='';return}
+  const r=a&&b?find(a,b):null;$('#res').innerHTML=r===null?`<div class="card empty">${t('both')}</div>`:r.length?r.map(card).join(''):`<div class="card empty">${t('none')}</div>`}
+$('#res').addEventListener('click',async e=>{
+  const b=e.target.closest('[data-a]');if(!b)return;const m=MEM.get(b.closest('[data-no]').dataset.no),x=shareText(m);
+  if(b.dataset.a=='wa')open('https://wa.me/?text='+encodeURIComponent(x),'_blank');
+  else if(b.dataset.a=='share'&&navigator.share){try{await navigator.share({title:t('brand'),text:x})}catch(_){}}
+  else{try{await navigator.clipboard.writeText(x);toast(t('copied'))}catch(_){prompt('',x)}}
+});
+
+/* ---------- admin ---------- */
+function opts(){
+  const ty=$('#fType'),mo=$('#fMonth'),a=ty.value,b=mo.value;
+  ty.innerHTML=`<option value="">${t('all')}</option>`+['reg','mem','don'].map(k=>`<option value="${k}">${t(k)}</option>`).join('');
+  const ms=[...new Set(DATA.map(r=>r.month).filter(Boolean))].sort();
+  mo.innerHTML=`<option value="">${t('all')}</option>`+ms.map(m=>`<option>${esc(m)}</option>`).join('');
+  ty.value=a;mo.value=b;
+}
+function filtered(){
+  const ty=$('#fType').value,mo=$('#fMonth').value,f=$('#fFrom').value,to=$('#fTo').value,q=$('#fText').value.trim().toLowerCase(),qp=normPhone(q);
+  return DATA.filter(r=>(!ty||r.k==ty)&&(!mo||r.month==mo)&&(!f||(r.ts&&r.ts>=new Date(f)))&&(!to||(r.ts&&r.ts<=new Date(to+'T23:59:59')))&&
+    (!q||r.name.toLowerCase().includes(q)||r.no==q||(qp.length>=4&&normPhone(r.phone).includes(qp))));
+}
+function renderAdmin(){
+  const rows=filtered(),s=sums(rows),mem=new Set(rows.map(r=>r.no)).size;
+  $('#kpis').innerHTML=[[t('members'),mem,'#14201E'],[t('collected'),rs(s.all),'#14201E'],[t('reg'),rs(s.reg),TY.reg],[t('mem'),rs(s.mem),TY.mem],[t('don'),rs(s.don),TY.don]].map(([a,b,c])=>`<div class="kpi" style="border-top:4px solid ${c}"><small>${a}</small><b>${b}</b></div>`).join('');
+  const mk={};rows.forEach(r=>{if(!r.ts)return;const k=r.ts.getFullYear()+'-'+String(r.ts.getMonth()+1).padStart(2,'0');(mk[k]=mk[k]||{reg:0,mem:0,don:0})[r.k]+=r.amt});
+  const ks=Object.keys(mk).sort();
+  charts.a&&charts.a.destroy();charts.b&&charts.b.destroy();
+  charts.a=new Chart($('#c1'),{type:'bar',data:{labels:ks.map(k=>MS[lang][+k.slice(5)-1]+' '+k.slice(0,4)),datasets:['reg','mem','don'].map(k=>({label:t(k),data:ks.map(x=>mk[x][k]),backgroundColor:TY[k],borderRadius:4}))},options:{responsive:true,maintainAspectRatio:false,scales:{x:{stacked:true},y:{stacked:true,ticks:{callback:v=>v.toLocaleString()}}},plugins:{tooltip:{callbacks:{label:c=>c.dataset.label+': '+rs(c.raw)}}}}});
+  charts.b=new Chart($('#c2'),{type:'doughnut',data:{labels:['reg','mem','don'].map(t),datasets:[{data:[s.reg,s.mem,s.don],backgroundColor:Object.values(TY)}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:c=>c.label+': '+rs(c.raw)}}}}});
+  $('#tblTitle').textContent=`${rows.length} ${t('shown')}`;
+  $('#adminTbl').innerHTML=`<table><thead><tr><th>${t('date')}</th><th>${t('memNo')}</th><th>${t('name')}</th><th>${t('phone')}</th><th>${t('type')}</th><th>${t('month')}</th><th class="n">${t('amount')}</th><th>${t('receipt')}</th></tr></thead><tbody>${rows.slice(0,300).map(r=>`<tr><td>${fd(r.ts)}</td><td>${esc(r.no)}</td><td>${esc(r.name)}</td><td>${esc(r.phone)}</td><td><span class="tag" style="--c:${TY[r.k]}">${t(r.k)}</span></td><td>${esc(r.month)||'–'}</td><td class="n">${rs(r.amt)}</td><td>${r.rec?`<a href="${esc(r.rec)}" target="_blank" rel="noopener">${t('view')}</a>`:'–'}</td></tr>`).join('')}</tbody></table>${rows.length>300?`<div class="empty">${t('more')}</div>`:''}`;
+}
+['fType','fMonth','fFrom','fTo'].forEach(i=>$('#'+i).addEventListener('input',renderAdmin));
+$('#fText').addEventListener('input',renderAdmin);
+$('#fReset').onclick=()=>{['fType','fMonth','fFrom','fTo','fText'].forEach(i=>$('#'+i).value='');renderAdmin()};
+$('#csvBtn').onclick=()=>{
+  const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"',rows=filtered();
+  const out=[['Date','Membership No.','Name','Phone','Type','Month','Amount','Receipt'].map(q).join(',')].concat(rows.map(r=>[fd(r.ts),r.no,r.name,r.phone,r.k,r.month,r.amt,r.rec].map(q).join(','))).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+out],{type:'text/csv'}));a.download='payments.csv';a.click();
+};
+$('#refresh').onclick=async()=>{await load();toast(t('loaded'))};
+
+/* ---------- login ---------- */
+const dlg=$('#dlg');
+function setAdmin(on){admin=on;try{on?sessionStorage.setItem('adm','1'):sessionStorage.removeItem('adm')}catch(_){}
+  $('#viewAdmin').hidden=!on;$('#viewSearch').hidden=on;$('#adminBtn').hidden=on;if(on){opts();renderAdmin()}else doSearch()}
+$('#adminBtn').onclick=()=>{$('#err').textContent='';dlg.showModal();$('#uid').focus()};
+$('#cancel').onclick=()=>dlg.close();
+function signin(){if(cyrb53($('#uid').value.trim()+':'+$('#pw').value)===CFG.ADMIN_HASH){dlg.close();$('#pw').value='';setAdmin(true)}else $('#err').textContent=t('bad')}
+$('#signin').onclick=signin;$('#pw').addEventListener('keydown',e=>e.key=='Enter'&&signin());
+$('#logout').onclick=()=>setAdmin(false);$('#toSearch').onclick=()=>{$('#viewAdmin').hidden=true;$('#viewSearch').hidden=false};
+
+/* ---------- language & misc ---------- */
+function toast(m){const e=$('#toast');e.textContent=m;e.classList.add('on');setTimeout(()=>e.classList.remove('on'),1800)}
+function applyLang(l){lang=l;document.documentElement.lang=l=='si'?'si':'en';$('#bEN').classList.toggle('on',l=='en');$('#bSI').classList.toggle('on',l=='si');
+  document.querySelectorAll('[data-t]').forEach(e=>e.textContent=t(e.dataset.t));document.querySelectorAll('[data-ph]').forEach(e=>e.placeholder=t(e.dataset.ph));
+  $('#notice').textContent=t('loadFail');document.title=t('brand');opts();doSearch();if(admin)renderAdmin();try{localStorage.setItem('lang',l)}catch(_){}}
+$('#bEN').onclick=()=>applyLang('en');$('#bSI').onclick=()=>applyLang('si');
+$('#go').onclick=doSearch;['q','q2'].forEach(i=>$('#'+i).addEventListener('keydown',e=>e.key=='Enter'&&doSearch()));
+(async()=>{let l='en';try{l=localStorage.getItem('lang')||'en'}catch(_){}
+  await load();applyLang(l);try{if(sessionStorage.getItem('adm'))setAdmin(true)}catch(_){}
+  setInterval(load,CFG.REFRESH_MIN*60000)})();
+</script>
+</body>
+</html>
