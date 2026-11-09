@@ -269,7 +269,7 @@ function filtered(){
 function renderAdmin(){
   const rows=filtered(),s=sums(rows),mem=new Set(rows.map(r=>r.no)).size;
   $('#kpis').innerHTML=[[t('members'),mem,'#14201E'],[t('collected'),rs(s.all),'#14201E'],[t('reg'),rs(s.reg),TY.reg],[t('mem'),rs(s.mem),TY.mem],[t('don'),rs(s.don),TY.don]].map(([a,b,c])=>`<div class="kpi" style="border-top:4px solid ${c}"><small>${a}</small><b>${b}</b></div>`).join('');
-  const mk={},moSel=$('#fMonth').value;rows.forEach(r=>{let k;if(moSel&&r.mk&&r.mk.length){const p=r.mk[0].split('-');k=p[0]+'-'+p[1].padStart(2,'0')}else{if(!r.ts)return;k=r.ts.getFullYear()+'-'+String(r.ts.getMonth()+1).padStart(2,'0')}(mk[k]=mk[k]||{reg:0,mem:0,don:0})[r.k]+=r.amt});
+  const mk={},moSel=$('#fMonth').value;rows.forEach(r=>{const add=(k,v)=>{(mk[k]=mk[k]||{reg:0,mem:0,don:0})[r.k]+=v};if(moSel&&r.mk&&r.mk.length){r.mk.forEach(x=>{const p=x.split('-');add(p[0]+'-'+p[1].padStart(2,'0'),r.amt/r.mk.length)})}else{if(!r.ts)return;add(r.ts.getFullYear()+'-'+String(r.ts.getMonth()+1).padStart(2,'0'),r.amt)}});
   const ks=Object.keys(mk).sort();
   charts.a&&charts.a.destroy();charts.b&&charts.b.destroy();
   charts.a=new Chart($('#c1'),{type:'bar',data:{labels:ks.map(k=>MS[lang][+k.slice(5)-1]+' '+k.slice(0,4)),datasets:['reg','mem','don'].map(k=>({label:t(k),data:ks.map(x=>mk[x][k]),backgroundColor:TY[k],borderRadius:4}))},options:{responsive:true,maintainAspectRatio:false,scales:{x:{stacked:true},y:{stacked:true,ticks:{callback:v=>v.toLocaleString()}}},plugins:{tooltip:{callbacks:{label:c=>c.dataset.label+': '+rs(c.raw)}}}}});
